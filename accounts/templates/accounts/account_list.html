@@ -19,14 +19,19 @@
             <tr>
                 <td>{{ user.email }}</td>
                 <td>{{ user.first_name }}</td>
-                <td>{{ "有効" if user.is_active else "無効" }}</td>
+                <td>{% if user.is_active %}
+                        有効
+                    {% else %}
+                        無効
+                    {% endif %}
+                </td>
                 <td>
                     <form method="post" action="{% url 'accounts:account_delete' user.id %}" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger btn-sm">削除</button>
                     </form>
                     <a href="{% url 'accounts:toggle_status' user.id %}" class="btn btn-secondary btn-sm">
-                        {{ "無効化" if user.is_active else "有効化" }}
+                        {% if user.is_active %}無効化{% else %}有効化{% endif %}
                     </a>
                     <a href="{% url 'accounts:admin_settings' %}" class="btn btn-primary btn-sm">編集</a>
                 </td>
