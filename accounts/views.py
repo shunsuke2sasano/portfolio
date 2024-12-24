@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import authenticate, login
+from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import AdminSettingsForm
+
+User = get_user_model()
 
 # 管理者専用アクセスのチェック
 def admin_check(user):
@@ -52,3 +55,31 @@ def admin_settings(request):
         form = AdminSettingsForm(instance=request.user)
 
     return render(request, 'accounts/admin_settings.html', {'form': form})
+
+@login_required
+@user_passes_test(admin_check)
+def account_list(request):
+    accounts = User.objects.all()
+    paginator = Paginator(accounts, 5)  # 1ページあたり5件
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'accounts/account_list.html', {'page_obj': page_obj})
+
+@login_required
+@user_passes_test(admin_check)
+def account_delete(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, "アカウントを削除しました。")
+        return redirect('accounts:account_list')
+
+@login_required
+@user_passes_test(admin_check)
+def toggle_status(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.is_active = not user.is_active
+    user.save()
+    messages.success(request, f"アカウントのステータスを{'有効化' if user.is_active else '無効化'}しました。")
+    return redirect('accounts:account_list')
