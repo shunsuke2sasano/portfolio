@@ -83,3 +83,25 @@ def toggle_status(request, user_id):
     user.save()
     messages.success(request, f"アカウントのステータスを{'有効化' if user.is_active else '無効化'}しました。")
     return redirect('accounts:account_list')
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def account_create(request):
+    if request.method == 'POST':
+        form = AccountForm(request.POST, request.FILES)
+        if form.is_valid():
+            account_type = form.cleaned_data.get('account_type')
+            user = form.save(commit=False)
+            if account_type == 'admin':
+                user.is_staff = True
+                user.is_superuser = True
+            user.set_password(form.cleaned_data.get('password'))
+            user.save()
+            messages.success(request, "アカウントが作成されました。")
+            return redirect('accounts:account_list')
+        else:
+            messages.error(request, "入力にエラーがあります。")
+    else:
+        form = AccountForm()
+
+    return render(request, 'accounts/account_create.html', {'form': form})
