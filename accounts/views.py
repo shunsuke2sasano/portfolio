@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .forms import AdminSettingsForm
+from .forms import AdminSettingsForm, AccountForm
 
 User = get_user_model()
 

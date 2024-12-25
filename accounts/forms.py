@@ -1,7 +1,7 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 import re
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -10,6 +10,24 @@ def validate_hiragana(value):
         raise ValidationError('ふりがなはひらがなのみで入力してください。')
 
 class AdminSettingsForm(forms.ModelForm):
+    password = forms.CharField(
+        max_length=32,
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        help_text="8~32文字の半角英数字と'_'、'-'のみ使用可能",
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'first_name']
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if password and not re.match(r'^[a-zA-Z0-9_-]{8,32}$', password):
+            raise ValidationError("パスワードは8~32文字の半角英数字と'_'、'-'のみ使用可能です。")
+        return password
+
+class AccountForm(forms.ModelForm):
     account_type = forms.ChoiceField(
         choices=[('general', '一般'), ('admin', '管理者')],
         widget=forms.RadioSelect,
@@ -19,13 +37,16 @@ class AdminSettingsForm(forms.ModelForm):
         max_length=255,
         required=True,
         widget=forms.EmailInput(attrs={'class': 'form-control'}),
-        error_messages={'invalid': '有効なメールアドレスを入力してください。'}
     )
     password = forms.CharField(
         max_length=32,
-        required=False,
+        required=True,
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        help_text="8~32文字の半角英数字と'_'、'-'のみ使用可能"
+        help_text="8~32文字の半角英数字と'_'、'-'のみ使用可能",
+    )
+    profile_image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
     )
     name = forms.CharField(
         max_length=255,
@@ -48,6 +69,11 @@ class AdminSettingsForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         max_value=999,
     )
+    bio = forms.CharField(
+        max_length=1500,
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control'}),
+    )
 
     class Meta:
         model = User
@@ -55,7 +81,7 @@ class AdminSettingsForm(forms.ModelForm):
 
     def clean_password(self):
         password = self.cleaned_data.get('password')
-        if password and not re.match(r'^[a-zA-Z0-9_-]{8,32}$', password):
+        if not re.match(r'^[a-zA-Z0-9_-]{8,32}$', password):
             raise ValidationError("パスワードは8~32文字の半角英数字と'_'、'-'のみ使用可能です。")
         return password
 
