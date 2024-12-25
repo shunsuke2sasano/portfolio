@@ -19,7 +19,13 @@
             <tr>
                 <td>{{ account.email }}</td>
                 <td>{{ account.name }}</td>
-                <td>{{ "無効" if not account.is_active else "有効" }}</td>
+                <td>
+                    {% if not account.is_active %}
+                        無効
+                    {% else %}
+                        有効
+                    {% endif %}
+                </td>
                 <td>
                     <form method="post" action="{% url 'accounts:account_delete' account.id %}" style="display:inline;">
                         {% csrf_token %}
