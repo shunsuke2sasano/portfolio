@@ -10,4 +10,7 @@ urlpatterns = [
     path('account_delete/<int:user_id>/', views.account_delete, name='account_delete'),
     path('toggle_status/<int:user_id>/', views.toggle_status, name='toggle_status'),
     path('account_create/', views.account_create, name='account_create'),
+    path('account_delete_list/', views.account_delete_list, name='account_delete_list'),
+    path('account_delete/<int:user_id>/', views.account_delete_permanently, name='account_delete'),
+    path('account_restore/<int:user_id>/', views.account_restore, name='account_restore'),
 ]
