@@ -105,3 +105,29 @@ def account_create(request):
         form = AccountForm()
 
     return render(request, 'accounts/account_create.html', {'form': form})
+
+@login_required
+@user_passes_test(admin_check)
+def account_delete_list(request):
+    # ステータスが無効（削除された状態）のアカウントを取得
+    deleted_accounts = User.objects.filter(is_active=False)
+    return render(request, 'accounts/account_delete_list.html', {'accounts': deleted_accounts})
+
+@login_required
+@user_passes_test(admin_check)
+def account_delete_permanently(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        user.delete()  # 完全削除
+        messages.success(request, "アカウントを完全に削除しました。")
+        return redirect('accounts:account_delete_list')
+
+@login_required
+@user_passes_test(admin_check)
+def account_restore(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        user.is_active = True  # アクティブ化
+        user.save()
+        messages.success(request, "アカウントを復元しました。")
+        return redirect('accounts:account_delete_list')
