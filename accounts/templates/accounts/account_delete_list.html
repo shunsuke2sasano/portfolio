@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}アカウント削除一覧{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>アカウント削除一覧</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>メアド</th>
+                <th>名前</th>
+                <th>ステータス</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in accounts %}
+            <tr>
+                <td>{{ account.email }}</td>
+                <td>{{ account.name }}</td>
+                <td>{{ "無効" if not account.is_active else "有効" }}</td>
+                <td>
+                    <form method="post" action="{% url 'accounts:account_delete' account.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">完全に削除</button>
+                    </form>
+                    <form method="post" action="{% url 'accounts:account_restore' account.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">復元</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
