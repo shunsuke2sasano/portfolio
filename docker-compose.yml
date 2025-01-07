@@ -22,7 +22,7 @@ services:
     depends_on:
       - db
     environment:
-      DJANGO_SETTINGS_MODULE: portfolio.portfolio.settings
+      DJANGO_SETTINGS_MODULE: "portfolio.portfolio.settings"
 
 volumes:
   db_data: {}

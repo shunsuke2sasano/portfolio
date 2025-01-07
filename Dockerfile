@@ -22,7 +22,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV DJANGO_SETTINGS_MODULE=portfolio.portfolio.settings
-
+ENV PYTHONPATH=/app
 # 依存パッケージをコピーしてインストール
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -35,3 +35,6 @@ EXPOSE 8000
 
 # サーバーを起動
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+
+
